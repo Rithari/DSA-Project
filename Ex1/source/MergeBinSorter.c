@@ -59,13 +59,13 @@ void binary_insertion_sort(void *base, size_t nitems, size_t size, int (*compar)
 
 void merge_sort(void *base, size_t start, size_t end, size_t size, int (*compar)(const void *, const void*)) {
     if (start < end) {
-        int mid = start + (end - start) / 2;
+        size_t mid = start + (end - start) / 2;
         merge_sort(base, start, mid, size, compar);
         merge_sort(base, mid + 1, end, size, compar);
 
-        char temp[(end - start + 1) * size];
+        char *temp = (char *) malloc((end - start + 1) * size);
         char *arr = (char *) base;
-        int i = start, j = mid + 1, k = 0;
+        size_t i = start, j = mid + 1, k = 0;
 
         while (i <= mid && j <= end) {
             if (compar(&arr[i * size], &arr[j * size]) <= 0) {
@@ -91,6 +91,7 @@ void merge_sort(void *base, size_t start, size_t end, size_t size, int (*compar)
         }
 
         memcpy(&arr[start * size], temp, (end - start + 1) * size);
+        free(temp);
     }
 }
 
