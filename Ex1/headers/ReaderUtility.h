@@ -4,15 +4,20 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
+#include <ctype.h>
 
+// Data types as specified in the exercise brief
 struct Row {
     int ID;
     char *Name;
-    double Number1;
-    double Number2;
+    int Number1;
+    float Number2;
 };
 
 void free_row(struct Row *row);
-struct Row *read_csv(const char *filename, int *num_rows);
+bool is_number(const char *str);
+struct Row *read_csv(const char *filename, int *num_rows, bool has_header);
+int write_csv(const char *filename, const struct Row *rows, int num_rows);
 
 #endif //EX1_READERUTILITY_H
