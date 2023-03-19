@@ -1,109 +1,68 @@
 #include "../headers/MergeBinSorter.h"
 
-// Comparison function that takes a function pointer to a cast function
-int compare(const void *a, const void *b, int (*cast)(const void*, const void*)) {
-    return cast(a, b);
-}
+void insertion_sort(void *base, size_t nitems, size_t size, int (*compar)(const void *, const void *)) {
+    char *buffer = (char *)malloc(size);
+    char *array = (char *)base;
 
-// Cast function for integers
-int cast_int(const void *a, const void *b) {
-    const int *num1 = (const int*) a;
-    const int *num2 = (const int*) b;
-    if (*num1 < *num2) {
-        return -1;
-    }
-    else if (*num1 > *num2) {
-        return 1;
-    }
-    else {
-        return 0;
-    }
-}
-
-// Cast function for floats
-int cast_float(const void *a, const void *b) {
-    const float *num1 = (const float*) a;
-    const float *num2 = (const float*) b;
-    if (*num1 < *num2) {
-        return -1;
-    }
-    else if (*num1 > *num2) {
-        return 1;
-    }
-    else {
-        return 0;
-    }
-}
-
-// Cast function for strings
-int cast_string(const void *a, const void *b) {
-    const char **str1 = (const char**) a;
-    const char **str2 = (const char**) b;
-    return strcmp(*str1, *str2);
-}
-
-void binary_insertion_sort(void *base, size_t nitems, size_t size, int (*compar)(const void *, const void*)) {
-    char *arr = (char*) base;
-    char temp[size];
-    int i, j;
-    for (i = 1; i < nitems; i++) {
-        memcpy(temp, &arr[i * size], size);
-        j = i - 1;
-        while (j >= 0 && compar(&arr[j * size], temp) > 0) {
-            memcpy(&arr[(j + 1) * size], &arr[j * size], size);
+    for (size_t i = 1; i < nitems; i++) {
+        memcpy(buffer, array + i * size, size);
+        size_t j = i;
+        while (j > 0 && compar(array + (j - 1) * size, buffer) > 0) {
+            memcpy(array + j * size, array + (j - 1) * size, size);
             j--;
         }
-        memcpy(&arr[(j + 1) * size], temp, size);
+        memcpy(array + j * size, buffer, size);
     }
+
+    free(buffer);
 }
 
-void merge_sort(void *base, size_t start, size_t end, size_t size, int (*compar)(const void *, const void*)) {
-    if (start < end) {
-        size_t mid = start + (end - start) / 2;
-        merge_sort(base, start, mid, size, compar);
-        merge_sort(base, mid + 1, end, size, compar);
+void merge(void *src, void *dst, size_t mid, size_t nitems, size_t size, int (*compar)(const void *, const void *)) {
+    char *left_ptr = (char *)src;
+    char *right_ptr = (char *)src + mid * size;
+    char *dst_ptr = (char *)dst;
 
-        char *temp = (char *) malloc((end - start + 1) * size);
-        char *arr = (char *) base;
-        size_t i = start, j = mid + 1, k = 0;
+    size_t left_index = 0, right_index = 0;
 
-        while (i <= mid && j <= end) {
-            if (compar(&arr[i * size], &arr[j * size]) <= 0) {
-                memcpy(&temp[k * size], &arr[i * size], size);
-                i++;
-            } else {
-                memcpy(&temp[k * size], &arr[j * size], size);
-                j++;
-            }
-            k++;
+    while (left_index < mid && right_index < nitems - mid) {
+        if (compar(left_ptr + left_index * size, right_ptr + right_index * size) <= 0) {
+            memcpy(dst_ptr, left_ptr + left_index * size, size);
+            left_index++;
+        } else {
+            memcpy(dst_ptr, right_ptr + right_index * size, size);
+            right_index++;
         }
-
-        while (i <= mid) {
-            memcpy(&temp[k * size], &arr[i * size], size);
-            i++;
-            k++;
-        }
-
-        while (j <= end) {
-            memcpy(&temp[k * size], &arr[j * size], size);
-            j++;
-            k++;
-        }
-
-        memcpy(&arr[start * size], temp, (end - start + 1) * size);
-        free(temp);
+        dst_ptr += size;
     }
+
+    memcpy(dst_ptr, left_ptr + left_index * size, (mid - left_index) * size);
+    memcpy(dst_ptr, right_ptr + right_index * size, (nitems - mid - right_index) * size);
 }
 
-void merge_binary_insertion_sort(void *base, size_t nitems, size_t size, size_t k, int (*compar)(const void *, const void*)) {
+void merge_sort(void *base, void *buffer, size_t nitems, size_t size, int (*compar)(const void *, const void *)) {
+    if (nitems <= 1) {
+        return;
+    }
+
+    size_t mid = nitems / 2;
+
+    merge_sort(buffer, base, mid, size, compar);
+    merge_sort(buffer + mid * size, base + mid * size, nitems - mid, size, compar);
+
+    merge(buffer, base, mid, nitems, size, compar);
+}
+
+void merge_binary_insertion_sort(void *base, size_t nitems, size_t size, size_t k, int (*compar)(const void *, const void *)) {
     if (nitems <= k) {
-        binary_insertion_sort(base, nitems, size, compar);
+        insertion_sort(base, nitems, size, compar);
+        return;
     }
-    else {
-        int mid = nitems / 2;
-        merge_binary_insertion_sort(base, mid, size, k, compar);
-        merge_binary_insertion_sort((char*)base + mid * size, nitems - mid, size, k, compar);
-        merge_sort(base, 0, nitems - 1, size, compar);
-    }
+
+    void *buffer = malloc(nitems * size);
+    memcpy(buffer, base, nitems * size);
+
+    merge_sort(base, buffer, nitems, size, compar);
+
+    free(buffer);
 }
 
