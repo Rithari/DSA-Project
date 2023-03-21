@@ -12,7 +12,7 @@ struct Row {
     int ID;
     char *Name;
     int Number1;
-    float Number2;
+    double Number2;
 };
 
 void free_row(struct Row *row);

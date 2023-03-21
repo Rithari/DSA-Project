@@ -121,7 +121,7 @@ struct Row *read_csv(const char *filename, int *num_rows, bool has_header) {
                         fprintf(stderr, "Error parsing Number2 field\n");
                         goto next_line;
                     }
-                    rows[num_read].Number2 = strtof(token, NULL);
+                    rows[num_read].Number2 = strtod(token, NULL);
                     break;
                 default:
                     fprintf(stderr, "Error: too many fields in the row\n");
@@ -159,7 +159,7 @@ int write_csv(const char *filename, const struct Row *rows, int num_rows) {
     }
 
     for (int i = 0; i < num_rows; i++) {
-        fprintf(fp, "%d,%s,%d,%.2lf\n",
+        fprintf(fp, "%d,%s,%d,%5lf\n",
                 rows[i].ID,
                 rows[i].Name,
                 rows[i].Number1,
