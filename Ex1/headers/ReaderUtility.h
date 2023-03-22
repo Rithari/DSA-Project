@@ -10,9 +10,9 @@
 // Data types as specified in the exercise brief
 struct Row {
     int ID;
-    char *Name;
-    int Number1;
-    double Number2;
+    char *field1;
+    int field2;
+    double field3;
 };
 
 void free_row(struct Row *row);

@@ -1,7 +1,7 @@
 #include "../headers/ReaderUtility.h"
 
 void free_row(struct Row *row) {
-    free(row->Name);
+    free(row->field1);
 }
 
 bool is_number(const char *str) {
@@ -97,9 +97,9 @@ struct Row *read_csv(const char *filename, int *num_rows, bool has_header) {
                     rows[num_read].ID = atoi(token);
                     break;
                 case 1:
-                    rows[num_read].Name = strdup(token);
-                    if (rows[num_read].Name == NULL) {
-                        perror("Error allocating memory for Name field");
+                    rows[num_read].field1 = strdup(token);
+                    if (rows[num_read].field1 == NULL) {
+                        perror("Error allocating memory for field1\n");
                         for (int i = 0; i < num_read; i++) {
                             free_row(&rows[i]);
                         }
@@ -111,17 +111,17 @@ struct Row *read_csv(const char *filename, int *num_rows, bool has_header) {
                     break;
                 case 2:
                     if (!is_number(token)) {
-                        fprintf(stderr, "Error parsing Number1 field\n");
+                        fprintf(stderr, "Error parsing field2\n");
                         goto next_line;
                     }
-                    rows[num_read].Number1 = atoi(token);
+                    rows[num_read].field2 = atoi(token);
                     break;
                 case 3:
                     if (!is_number(token)) {
-                        fprintf(stderr, "Error parsing Number2 field\n");
+                        fprintf(stderr, "Error parsing field3\n");
                         goto next_line;
                     }
-                    rows[num_read].Number2 = strtod(token, NULL);
+                    rows[num_read].field3 = strtod(token, NULL);
                     break;
                 default:
                     fprintf(stderr, "Error: too many fields in the row\n");
@@ -161,9 +161,9 @@ int write_csv(const char *filename, const struct Row *rows, int num_rows) {
     for (int i = 0; i < num_rows; i++) {
         fprintf(fp, "%d,%s,%d,%5lf\n",
                 rows[i].ID,
-                rows[i].Name,
-                rows[i].Number1,
-                rows[i].Number2);
+                rows[i].field1,
+                rows[i].field2,
+                rows[i].field3);
     }
 
     fclose(fp);
