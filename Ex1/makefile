@@ -6,7 +6,7 @@ INFILE=records.csv
 OUTFILE=sorted.csv
 DEPS=$(SRCDIR)/MergeBinSorter.c $(SRCDIR)/main_ex1.c $(SRCDIR)/ReaderUtility.c
 
-all: $(BINDIR)/main_ex1
+all: clean $(BINDIR)/main_ex1
 
 $(BINDIR)/main_ex1: $(DEPS) | $(BINDIR)
 	$(CC) $(CFLAGS) $^ -o $@
@@ -14,15 +14,14 @@ $(BINDIR)/main_ex1: $(DEPS) | $(BINDIR)
 $(BINDIR):
 	mkdir $(BINDIR)
 
-
 field1: $(BINDIR)/main_ex1 $(INFILE)
-	$(BINDIR)/main_ex1 $(INFILE) $(OUTFILE) 77 1
+	$(BINDIR)/main_ex1 $(INFILE) $(OUTFILE) 94 1
 
 field2: $(BINDIR)/main_ex1 $(INFILE)
-	$(BINDIR)/main_ex1 $(INFILE) $(OUTFILE) 40 2
+	$(BINDIR)/main_ex1 $(INFILE) $(OUTFILE) 94 2
 
 field3: $(BINDIR)/main_ex1 $(INFILE)
-	$(BINDIR)/main_ex1 $(INFILE) $(OUTFILE) 10 3
+	$(BINDIR)/main_ex1 $(INFILE) $(OUTFILE) 88 3
 
 run: all field2
 
