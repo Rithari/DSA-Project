@@ -61,7 +61,6 @@ struct Row *read_csv(const char *filename, int *num_rows, bool has_header) {
         // Remove newline character if present
         if (line[read_bytes - 1] == '\n') {
             line[read_bytes - 1] = '\0';
-            read_bytes--;
         }
 
         // Expand the rows array if needed
