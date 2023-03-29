@@ -56,6 +56,7 @@ void sort_records(const char *infile, const char *outfile, size_t k, size_t fiel
     clock_gettime(CLOCK_MONOTONIC, &start);
 
     merge_binary_insertion_sort(rows, num_rows, sizeof(struct Row), k, compare_function);
+    //qsort(rows, num_rows, sizeof(struct Row), compare_function);
 
     clock_gettime(CLOCK_MONOTONIC, &end);
     double time_taken = get_time_diff(start, end);
@@ -97,4 +98,3 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
-

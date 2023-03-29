@@ -26,10 +26,12 @@ void binary_insertion_sort(void *base, size_t nitems, size_t size, int (*compar)
     free(temp);
 }
 
-void merge(void *base, void *temp, size_t left, size_t middle, size_t right, size_t size, int (*compar)(const void *, const void *)) {
-    if (middle < right && compar((char *)base + middle * size, (char *)base + (middle + 1) * size) <= 0) {
+void merge(void *base, void *temp, size_t left, size_t middle, size_t right, size_t size, size_t z, int (*compar)(const void *, const void *)) {
+    if(right - left + 1 <= z) {
+        binary_insertion_sort((char *)base + left * size, right - left + 1, size, compar);
         return;
     }
+
     size_t left_size = middle - left + 1;
     size_t right_size = right - middle;
 
@@ -64,30 +66,34 @@ void merge(void *base, void *temp, size_t left, size_t middle, size_t right, siz
     }
 }
 
-void merge_sort_recursive(void *base, void *temp, size_t left, size_t right, size_t size, int (*compar)(const void *, const void *)) {
+void merge_sort_recursive(void *base, void *temp, size_t left, size_t right, size_t size, size_t k, int (*compar)(const void *, const void *)) {
     if (left >= right) {
         return;
     }
 
     size_t middle = left + (right - left) / 2;
-    merge_sort_recursive(base, temp, left, middle, size, compar);
-    merge_sort_recursive(base, temp, middle + 1, right, size, compar);
-    merge(base, temp, left, middle, right, size, compar);
+    merge_sort_recursive(base, temp, left, middle, size, k, compar);
+    merge_sort_recursive(base, temp, middle + 1, right, size, k, compar);
+
+    if (compar((char *)base + middle * size, (char *)base + (middle + 1) * size) > 0) {
+        merge(base, temp, left, middle, right, size, k, compar);
+    }
 }
 
-void merge_sort(void *base, size_t nitems, size_t size, int (*compar)(const void *, const void *)) {
+
+void merge_sort(void *base, size_t nitems, size_t size, size_t k, int (*compar)(const void *, const void *)) {
     if (nitems <= 1) {
         return;
     }
 
     void *temp = malloc(nitems * size);
-    merge_sort_recursive(base, temp, 0, nitems - 1, size, compar);
+    merge_sort_recursive(base, temp, 0, nitems - 1, size, k, compar);
     free(temp);
 }
 
 void merge_binary_insertion_sort(void *base, size_t nitems, size_t size, size_t k, int (*compar)(const void *, const void *)) {
     if (k == 0) {
-        merge_sort(base, nitems, size, compar);
+        merge_sort(base, nitems, size, k, compar);
         return;
     }
 
@@ -98,26 +104,13 @@ void merge_binary_insertion_sort(void *base, size_t nitems, size_t size, size_t 
 
     void *temp = malloc(nitems * size);
 
-    size_t run_start = 0;
-    size_t run_end;
-
-    while (run_start < nitems) {
-        run_end = run_start + 1;
-        while (run_end < nitems && compar((char *)base + (run_end - 1) * size, (char *)base + run_end * size) <= 0) {
-            run_end++;
-        }
-
-        size_t run_size = run_end - run_start;
-
-        if (run_size <= k) {
-            binary_insertion_sort((char *)base + run_start * size, run_size, size, compar);
-        } else {
-            merge_sort((char *)base + run_start * size, run_size, size, compar);
-        }
-
-        run_start = run_end;
+    // First, sort chunks of size 'k' using binary_insertion_sort
+    for (size_t i = 0; i < nitems; i += k) {
+        size_t chunk_size = (i + k < nitems) ? k : (nitems - i);
+        binary_insertion_sort((char *)base + i * size, chunk_size, size, compar);
     }
 
+    // Now, iteratively merge chunks
     for (size_t width = k; width < nitems; width *= 2) {
         for (size_t i = 0; i < nitems; i += 2 * width) {
             size_t left = i;
@@ -133,7 +126,7 @@ void merge_binary_insertion_sort(void *base, size_t nitems, size_t size, size_t 
             }
 
             if (left < nitems && middle < nitems && right < nitems) {
-                merge(base, temp, left, middle, right, size, compar);
+                merge(base, temp, left, middle, right, size, k, compar);
             }
         }
     }
