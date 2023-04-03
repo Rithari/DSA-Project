@@ -15,13 +15,13 @@ $(BINDIR):
 	mkdir $(BINDIR)
 
 field1: $(BINDIR)/main_ex1 $(INFILE)
-	$(BINDIR)/main_ex1 $(INFILE) $(OUTFILE) 94 1
+	$(BINDIR)/main_ex1 $(INFILE) $(OUTFILE) 20 1
 
 field2: $(BINDIR)/main_ex1 $(INFILE)
-	$(BINDIR)/main_ex1 $(INFILE) $(OUTFILE) 94 2
+	$(BINDIR)/main_ex1 $(INFILE) $(OUTFILE) 22 2
 
 field3: $(BINDIR)/main_ex1 $(INFILE)
-	$(BINDIR)/main_ex1 $(INFILE) $(OUTFILE) 88 3
+	$(BINDIR)/main_ex1 $(INFILE) $(OUTFILE) 21 3
 
 run: all field2
 

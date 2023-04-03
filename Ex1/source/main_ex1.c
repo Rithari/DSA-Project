@@ -29,7 +29,7 @@ int compare_field3(const void *a, const void *b) {
 
 void sort_records(const char *infile, const char *outfile, size_t k, size_t field) {
     int num_rows;
-    struct Row *rows = read_csv(infile, &num_rows, false);
+    struct Row *rows = read_csv(infile, &num_rows);
     if (rows == NULL) {
         printf("Failed to read the CSV file.\n");
         exit(1);
@@ -56,7 +56,6 @@ void sort_records(const char *infile, const char *outfile, size_t k, size_t fiel
     clock_gettime(CLOCK_MONOTONIC, &start);
 
     merge_binary_insertion_sort(rows, num_rows, sizeof(struct Row), k, compare_function);
-    //qsort(rows, num_rows, sizeof(struct Row), compare_function);
 
     clock_gettime(CLOCK_MONOTONIC, &end);
     double time_taken = get_time_diff(start, end);
@@ -86,8 +85,8 @@ int main(int argc, char *argv[]) {
 
     char *infile = argv[1];
     char *outfile = argv[2];
-    size_t k = atoi(argv[3]);
-    size_t field = atoi(argv[4]);
+    size_t k = strtol(argv[3], NULL, 10);
+    size_t field = strtol(argv[4], NULL, 10);
 
     if (strcmp(infile, outfile) == 0) {
         printf("Input and output files must be different.\n");

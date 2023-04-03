@@ -17,7 +17,7 @@ struct Row {
 
 void free_row(struct Row *row);
 bool is_number(const char *str);
-struct Row *read_csv(const char *filename, int *num_rows, bool has_header);
+struct Row *read_csv(const char *filename, int *num_rows);
 int write_csv(const char *filename, const struct Row *rows, int num_rows);
 
 #endif //EX1_READERUTILITY_H

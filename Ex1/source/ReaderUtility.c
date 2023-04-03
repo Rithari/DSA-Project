@@ -31,7 +31,7 @@ bool is_number(const char *str) {
     return true;
 }
 
-struct Row *read_csv(const char *filename, int *num_rows, bool has_header) {
+struct Row *read_csv(const char *filename, int *num_rows) {
     FILE *fp;
     char *line = NULL;
     size_t len = 0;
@@ -49,11 +49,6 @@ struct Row *read_csv(const char *filename, int *num_rows, bool has_header) {
         perror("Error opening file");
         free(rows);
         return NULL;
-    }
-
-    // If CSV has a header row, skip the first line
-    if (has_header) {
-        getline(&line, &len, fp);
     }
 
     // Read each line from the file
