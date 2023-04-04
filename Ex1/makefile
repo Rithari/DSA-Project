@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Ofast
-BINDIR=bin
+BINDIR=build
 SRCDIR=source
 INFILE=records.csv
 OUTFILE=sorted.csv
@@ -25,5 +25,8 @@ field3: $(BINDIR)/main_ex1 $(INFILE)
 
 run: all field2
 
+test: $(SRCDIR)/test_MergeBinSorter.c $(SRCDIR)/MergeBinSorter.c $(SRCDIR)/unity.c
+	$(CC) $(CFLAGS) $^ -o $(BINDIR)/test_MergeBinSorter
+	$(BINDIR)/test_MergeBinSorter
 clean:
 	rm -rf $(BINDIR) $(OUTFILE)

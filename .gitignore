@@ -1,1 +1,13 @@
-/Ex1/records.csv
+# Default ignored files
+/shelf/
+/workspace.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+
+Ex1/build/
+Ex1/vcs.xml
+Ex1/cmake-build-debug/
+Ex1/*csv
