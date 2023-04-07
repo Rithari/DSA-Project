@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 
-// Data types as specified in the exercise brief
+// Row structure representing a single row of data in the CSV file
 struct Row {
     int ID;
     char *field1;
@@ -15,9 +15,16 @@ struct Row {
     double field3;
 };
 
+// Frees the memory allocated for field1 in the Row structure
 void free_row(struct Row *row);
+
+// Checks if the given string represents a valid number
 bool is_number(const char *str);
+
+// Reads the CSV file and returns an array of Row structs
 struct Row *read_csv(const char *filename, int *num_rows);
+
+// Writes the given array of Row structs to a CSV file
 int write_csv(const char *filename, const struct Row *rows, int num_rows);
 
 #endif //EX1_READERUTILITY_H

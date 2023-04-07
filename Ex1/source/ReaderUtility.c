@@ -1,9 +1,11 @@
 #include "../headers/ReaderUtility.h"
 
+// Frees the memory allocated for field1 in the Row structure
 void free_row(struct Row *row) {
     free(row->field1);
 }
 
+// Checks if the given string represents a valid number
 bool is_number(const char *str) {
     // Ignore leading whitespace
     while (*str && isspace(*str)) {
@@ -16,21 +18,25 @@ bool is_number(const char *str) {
     }
 
     bool has_decimal_point = false;
+    bool has_digit = false;
     while (*str) {
         if (*str == '.') {
             if (has_decimal_point) {
                 return false; // Multiple decimal points are not allowed
             }
             has_decimal_point = true;
-        } else if (!isdigit(*str)) {
+        } else if (isdigit(*str)) {
+            has_digit = true;
+        } else {
             return false; // Non-digit characters are not allowed
         }
         str++;
     }
 
-    return true;
+    return has_digit; // Ensure there is at least one digit in the number
 }
 
+// Reads the CSV file and returns an array of Row structs
 struct Row *read_csv(const char *filename, int *num_rows) {
     FILE *fp;
     char *line = NULL;
@@ -130,7 +136,7 @@ struct Row *read_csv(const char *filename, int *num_rows) {
             goto next_line;
         }
 
-        num_read++;
+        num_read++; // Increment the number of rows read because this line was valid
 
         next_line:
         continue;
@@ -143,6 +149,7 @@ struct Row *read_csv(const char *filename, int *num_rows) {
     return rows;
 }
 
+// Writes the given array of Row structs to a CSV file
 int write_csv(const char *filename, const struct Row *rows, int num_rows) {
     FILE *fp;
 
@@ -152,6 +159,7 @@ int write_csv(const char *filename, const struct Row *rows, int num_rows) {
         return 1;
     }
 
+    // Iterate through the rows and write each row to the file
     for (int i = 0; i < num_rows; i++) {
         fprintf(fp, "%d,%s,%d,%5lf\n",
                 rows[i].ID,
