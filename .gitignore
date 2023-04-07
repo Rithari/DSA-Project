@@ -11,3 +11,4 @@
 **/vcs.xml
 **/cmake-build-debug/
 **/*csv
+**/.txt
