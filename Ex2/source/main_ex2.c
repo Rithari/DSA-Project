@@ -39,24 +39,19 @@ void find_errors(const char *dictfile, const char *textfile, size_t max_height) 
 
     char c;
     size_t word_pos = 0;
-    while (1) {
-        c = fgetc(text);
-        if (is_word_separator(c) || c == EOF) {
+    while ((c = fgetc(text)) != EOF) {
+        if (is_word_separator(c)) {
             if (word_pos > 0) {
                 word[word_pos] = '\0';
                 if (!search_skiplist(list, word)) {
                     printf("Error: %s\n", word);
                 }
-                word_pos = 0;
-            }
-            if (c == EOF) {
-                break;
+                word_pos = 0; // Reset word_pos to 0
             }
         } else {
             word[word_pos++] = c;
         }
     }
-
 
     if (word_pos > 0) {
         word[word_pos] = '\0';
