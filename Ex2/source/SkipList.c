@@ -27,11 +27,12 @@ void clear_skiplist(struct SkipList **list) {
 
 size_t random_level(size_t max_height) {
     size_t level = 1;
-    while ((rand() < (RAND_MAX / 2)) && (level < max_height)) {
+    while ((random() / ((double)RAND_MAX + 1) < 0.5) && (level < max_height)) {
         level++;
     }
     return level;
 }
+
 
 void insert_skiplist(struct SkipList *list, void *item) {
     struct Node *update[list->max_height];
