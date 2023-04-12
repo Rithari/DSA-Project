@@ -18,5 +18,9 @@ $(BINDIR):
 run: all
 	$(BINDIR)/main_ex2 $(INFILE) $(INFILE2) 18
 
+test: $(SRCDIR)/test_SkipList.c $(SRCDIR)/SkipList.c $(SRCDIR)/unity.c
+	$(CC) $(CFLAGS) $^ -o $(BINDIR)/test_SkipList
+	$(BINDIR)/test_SkipList
+
 clean:
 	rm -rf $(BINDIR)
