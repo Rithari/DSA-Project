@@ -20,6 +20,8 @@ struct SkipList {
 
 void new_skiplist(struct SkipList **list, size_t max_height, int (*compar)(const void *, const void *));
 void clear_skiplist(struct SkipList **list);
+size_t random_level(size_t max_height);
+struct Node *create_node(void *item, size_t size);
 void insert_skiplist(struct SkipList *list, void *item);
 const void *search_skiplist(struct SkipList *list, void *item);
 

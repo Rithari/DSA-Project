@@ -33,49 +33,46 @@ size_t random_level(size_t max_height) {
     return level;
 }
 
+struct Node *create_node(void *item, size_t size) {
+    struct Node *new_node = (struct Node *)malloc(sizeof(struct Node));
+    new_node->next = (struct Node **)calloc(size, sizeof(struct Node *));
+    new_node->size = size;
+    new_node->item = item;
+    return new_node;
+}
 
 void insert_skiplist(struct SkipList *list, void *item) {
-    struct Node *update[list->max_height];
-    struct Node *current = list->head;
-
-    for (int i = list->max_level - 1; i >= 0; i--) {
-        while (current->next[i] && list->compare(current->next[i]->item, item) < 0) {
-            current = current->next[i];
-        }
-        update[i] = current;
+    struct Node *new = create_node(item, random_level(list->max_height));
+    if (new->size > list->max_level) {
+        list->max_level = new->size;
     }
 
-    size_t new_level = random_level(list->max_height);
-    if (new_level > list->max_level) {
-        for (int i = list->max_level; i < new_level; i++) {
-            update[i] = list->head;
+    struct Node *x = list->head;
+    for (int k = list->max_level; k >= 1; k--) {
+        if (x->next[k - 1] == NULL || list->compare(item, x->next[k - 1]->item) < 0) {
+            if (k <= new->size) {
+                new->next[k - 1] = x->next[k - 1];
+                x->next[k - 1] = new;
+            }
+        } else {
+            x = x->next[k - 1];
+            k++;
         }
-        list->max_level = new_level;
-    }
-
-    struct Node *new_node = (struct Node *)malloc(sizeof(struct Node));
-    new_node->next = (struct Node **)calloc(new_level, sizeof(struct Node *));
-    new_node->size = new_level;
-    new_node->item = item;
-
-    for (int i = 0; i < new_level; i++) {
-        new_node->next[i] = update[i]->next[i];
-        update[i]->next[i] = new_node;
     }
 }
 
 const void *search_skiplist(struct SkipList *list, void *item) {
     struct Node *current = list->head;
 
-    for (int i = list->max_level - 1; i >= 0; i--) {
-        while (current->next[i] && list->compare(current->next[i]->item, item) < 0) {
-            current = current->next[i];
+    for (int i = list->max_level; i >= 1; i--) {
+        while (current->next[i - 1] != NULL && list->compare(current->next[i - 1]->item, item) < 0) {
+            current = current->next[i - 1];
         }
     }
 
     current = current->next[0];
 
-    if (current && list->compare(current->item, item) == 0) {
+    if (current != NULL && list->compare(current->item, item) == 0) {
         return current->item;
     } else {
         return NULL;

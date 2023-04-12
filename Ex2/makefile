@@ -14,8 +14,9 @@ $(BINDIR)/main_ex2: $(DEPS) | $(BINDIR)
 $(BINDIR):
 	mkdir -p $(BINDIR)
 
+# <max_height> is optimal between 16 and 20
 run: all
-	$(BINDIR)/main_ex2 $(INFILE) $(INFILE2) 4
+	$(BINDIR)/main_ex2 $(INFILE) $(INFILE2) 18
 
 clean:
 	rm -rf $(BINDIR)
