@@ -26,7 +26,7 @@ void test_insert_skiplist(void) {
 
     const void *result = search_skiplist(list, &value);
     TEST_ASSERT_NOT_NULL(result);
-    TEST_ASSERT_EQUAL_PTR(&value, result);
+    TEST_ASSERT_EQUAL(value, *(int *)result);
 }
 
 void test_search_skiplist_not_found(void) {
@@ -50,7 +50,7 @@ void test_skiplist_multiple_inserts(void) {
     for (size_t i = 0; i < len; i++) {
         const void *result = search_skiplist(list, &values[i]);
         TEST_ASSERT_NOT_NULL(result);
-        TEST_ASSERT_EQUAL_PTR(&values[i], result);
+        TEST_ASSERT_EQUAL(values[i], *(int *)result);
     }
 }
 
@@ -61,7 +61,7 @@ void test_insert_skiplist_duplicate(void) {
 
     const void *result = search_skiplist(list, &value);
     TEST_ASSERT_NOT_NULL(result);
-    TEST_ASSERT_EQUAL_PTR(&value, result);
+    TEST_ASSERT_EQUAL(value, *(int *)result);
 }
 
 void test_clear_skiplist(void) {
@@ -90,9 +90,9 @@ void test_insert_skiplist_min_max_values(void) {
     const void *max_result = search_skiplist(list, &max_value);
 
     TEST_ASSERT_NOT_NULL(min_result);
-    TEST_ASSERT_EQUAL_PTR(&min_value, min_result);
+    TEST_ASSERT_EQUAL(min_value, *(int *)min_result);
     TEST_ASSERT_NOT_NULL(max_result);
-    TEST_ASSERT_EQUAL_PTR(&max_value, max_result);
+    TEST_ASSERT_EQUAL(max_value, *(int *)max_result);
 }
 
 void test_insert_skiplist_negative_values(void) {
@@ -106,7 +106,7 @@ void test_insert_skiplist_negative_values(void) {
     for (size_t i = 0; i < len; i++) {
         const void *result = search_skiplist(list, &values[i]);
         TEST_ASSERT_NOT_NULL(result);
-        TEST_ASSERT_EQUAL_PTR(&values[i], result);
+        TEST_ASSERT_EQUAL(values[i], *(int *)result);
     }
 }
 
@@ -137,13 +137,26 @@ void test_insert_skiplist_random_values(void) {
     for (size_t i = 0; i < len; i++) {
         const void *result = search_skiplist(list, &values[i]);
         TEST_ASSERT_NOT_NULL(result);
-        TEST_ASSERT_EQUAL_PTR(&values[i], result);
+        TEST_ASSERT_EQUAL(values[i], *(int *)result);
     }
 
     free(values);
 }
 
+void test_same_elements(void) {
+    int values[] = {1, 1, 1, 1, 1};
+    size_t len = sizeof(values) / sizeof(values[0]);
 
+    for (size_t i = 0; i < len; i++) {
+        insert_skiplist(list, &values[i]);
+    }
+
+    for (size_t i = 0; i < len; i++) {
+        const void *result = search_skiplist(list, &values[i]);
+        TEST_ASSERT_NOT_NULL(result);
+        TEST_ASSERT_EQUAL(values[i], *(int *)result);
+    }
+}
 
 int main(void) {
     UNITY_BEGIN();
@@ -157,5 +170,6 @@ int main(void) {
     RUN_TEST(test_insert_skiplist_negative_values);
     RUN_TEST(test_insert_skiplist_non_existing_value);
     RUN_TEST(test_insert_skiplist_random_values);
+    RUN_TEST(test_same_elements);
     return UNITY_END();
 }
