@@ -3,10 +3,10 @@
 
 // Comparison function for integer sorting
 static int int_compare(const void *a, const void *b) {
-    int a_val = *((int *)a);
-    int b_val = *((int *)b);
+    const int int_a = *(const int *) a;
+    const int int_b = *(const int *) b;
 
-    return a_val - b_val;
+    return (int_a > int_b) - (int_a < int_b);
 }
 
 // Setup function for Unity testing framework

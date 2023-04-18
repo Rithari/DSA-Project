@@ -20,7 +20,7 @@ int compare_field2(const void *a, const void *b) {
     const struct Row *row_a = (const struct Row *)a;
     const struct Row *row_b = (const struct Row *)b;
 
-    return row_a->field2 - row_b->field2;
+    return (row_a->field2 < row_b->field2) - (row_a->field2 > row_b->field2);
 }
 
 // Comparison function for field3 (double)
