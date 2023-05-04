@@ -8,46 +8,18 @@ import java.util.Set;
 
 public class Graph<E, W> {
 
-    public static class Arc<E, W> {
-        private final E source;
-        private final E target;
-        private final W weight;
-
-        public Arc(E source, E target, W weight) {
-            this.source = source;
-            this.target = target;
-            this.weight = weight;
-        }
-
-        public E getSource() {
-            return source;
-        }
-
-        public E getTarget() {
-            return target;
-        }
-
-        public W getWeight() {
-            return weight;
-        }
+    public record Arc<E, W>(E source, E target, W weight) {
 
         @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Arc<?, ?> arc = (Arc<?, ?>) o;
-            return source.equals(arc.source) &&
-                    target.equals(arc.target) &&
-                    weight.equals(arc.weight);
-        }
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+                Arc<?, ?> arc = (Arc<?, ?>) o;
+                return source.equals(arc.source) &&
+                        target.equals(arc.target) &&
+                        weight.equals(arc.weight);
+            }
 
-        @Override
-        public int hashCode() {
-            int result = source.hashCode();
-            result = 31 * result + target.hashCode();
-            result = 31 * result + weight.hashCode();
-            return result;
-        }
     }
 
     private final boolean isDirected;

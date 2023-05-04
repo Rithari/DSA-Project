@@ -1,9 +1,9 @@
 package test.datastructures;
 
 import datastructures.Graph;
+import datastructures.Graph.Arc;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -167,13 +167,13 @@ class GraphTest {
         graph.addArc("C", "D", 3.0f);
         graph.addArc("A", "D", 4.0f);
 
-        Set<Map.Entry<String, Float>> arcs = graph.getArcs("A");
+        Set<Arc<String, Float>> arcs = graph.getArcs();
         boolean containsAB = false;
         boolean containsAD = false;
-        for (Map.Entry<String, Float> arc : arcs) {
-            if (arc.getKey().equals("B") && arc.getValue() == 1.0f) {
+        for (Arc<String, Float> arc : arcs) {
+            if (arc.source().equals("A") && arc.target().equals("B") && arc.weight() == 1.0f) {
                 containsAB = true;
-            } else if (arc.getKey().equals("D") && arc.getValue() == 4.0f) {
+            } else if (arc.source().equals("A") && arc.target().equals("D") && arc.weight() == 4.0f) {
                 containsAD = true;
             }
         }
