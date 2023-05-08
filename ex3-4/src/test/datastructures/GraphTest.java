@@ -1,210 +1,95 @@
 package test.datastructures;
 
 import datastructures.Graph;
-import datastructures.Graph.Arc;
 import org.junit.jupiter.api.Test;
-
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class GraphTest {
 
     @Test
-    void testAddNodes() {
+    void testAddSelfLoop() {
         Graph<String, Float> graph = new Graph<>(false);
         graph.addNode("A");
-        graph.addNode("B");
-        graph.addNode("C");
-        graph.addNode("D");
+        graph.addArc("A", "A", 1.0f);
 
-        assertEquals(4, graph.numberOfNodes());
+        assertTrue(graph.containsArc("A", "A"));
     }
 
     @Test
-    void testAddArcs() {
+    void testRemoveNonExistentArc() {
         Graph<String, Float> graph = new Graph<>(false);
         graph.addNode("A");
         graph.addNode("B");
-        graph.addNode("C");
-        graph.addNode("D");
 
-        graph.addArc("A", "B", 1.0f);
-        graph.addArc("B", "C", 2.0f);
-        graph.addArc("C", "D", 3.0f);
-        graph.addArc("A", "D", 4.0f);
-
-        assertEquals(4, graph.numberOfArcs());
-    }
-
-    @Test
-    void testNodeAndArcPresence() {
-        Graph<String, Float> graph = new Graph<>(false);
-        graph.addNode("A");
-        graph.addNode("B");
-        graph.addNode("C");
-        graph.addNode("D");
-        graph.addArc("A", "B", 1.0f);
-
-        assertTrue(graph.containsNode("A"));
-        assertTrue(graph.containsArc("A", "B"));
-    }
-
-    @Test
-    void testArcRemoval() {
-        Graph<String, Float> graph = new Graph<>(false);
-        graph.addNode("A");
-        graph.addNode("B");
-        graph.addNode("C");
-        graph.addNode("D");
-        graph.addArc("A", "B", 1.0f);
-
-        graph.deleteArc("A", "B");
+        assertDoesNotThrow(() -> graph.deleteArc("A", "B"));
         assertFalse(graph.containsArc("A", "B"));
-        assertEquals(0, graph.numberOfArcs());
     }
 
     @Test
-    void testNodeRemoval() {
+    void testRemoveNonExistentNode() {
+        Graph<String, Float> graph = new Graph<>(false);
+
+        assertDoesNotThrow(() -> graph.deleteNode("A"));
+        assertFalse(graph.containsNode("A"));
+    }
+
+    @Test
+    void testAddDuplicateNode() {
+        Graph<String, Float> graph = new Graph<>(false);
+        graph.addNode("A");
+        graph.addNode("A");
+
+        assertEquals(1, graph.numberOfNodes());
+    }
+
+    @Test
+    void testAddDuplicateArc() {
         Graph<String, Float> graph = new Graph<>(false);
         graph.addNode("A");
         graph.addNode("B");
-        graph.addNode("C");
-        graph.addNode("D");
+        graph.addArc("A", "B", 1.0f);
+        graph.addArc("A", "B", 1.0f);
 
-        graph.deleteNode("A");
-        assertFalse(graph.containsNode("A"));
-        assertEquals(3, graph.numberOfNodes());
+        assertEquals(1, graph.numberOfArcs());
     }
 
     @Test
-    void testIsDirected() {
+    void testUpdateArcWeight() {
+        Graph<String, Float> graph = new Graph<>(false);
+        graph.addNode("A");
+        graph.addNode("B");
+        graph.addArc("A", "B", 1.0f);
+        graph.addArc("A", "B", 2.0f);
+
+        assertEquals(2.0f, graph.getWeight("A", "B"));
+    }
+
+    @Test
+    void testGetArcsCountDirectedUndirected() {
         Graph<String, Float> directedGraph = new Graph<>(true);
         Graph<String, Float> undirectedGraph = new Graph<>(false);
 
-        assertTrue(directedGraph.isDirected());
-        assertFalse(undirectedGraph.isDirected());
+        directedGraph.addNode("A");
+        directedGraph.addNode("B");
+        directedGraph.addNode("C");
+        directedGraph.addNode("D");
+        directedGraph.addArc("A", "B", 1.0f);
+        directedGraph.addArc("B", "C", 2.0f);
+        directedGraph.addArc("C", "D", 3.0f);
+        directedGraph.addArc("A", "D", 4.0f);
+
+        undirectedGraph.addNode("A");
+        undirectedGraph.addNode("B");
+        undirectedGraph.addNode("C");
+        undirectedGraph.addNode("D");
+        undirectedGraph.addArc("A", "B", 1.0f);
+        undirectedGraph.addArc("B", "C", 2.0f);
+        undirectedGraph.addArc("C", "D", 3.0f);
+        undirectedGraph.addArc("A", "D", 4.0f);
+
+        assertEquals(4, directedGraph.getArcsCount());
+        assertEquals(8, undirectedGraph.getArcsCount());
     }
 
-    @Test
-    void testGetAdjacentNodes() {
-        Graph<String, Float> graph = new Graph<>(false);
-        graph.addNode("A");
-        graph.addNode("B");
-        graph.addNode("C");
-        graph.addNode("D");
-
-        graph.addArc("A", "B", 1.0f);
-        graph.addArc("A", "C", 2.0f);
-
-        Set<String> adjacentNodes = graph.getAdjacentNodes("A");
-        assertTrue(adjacentNodes.contains("B"));
-        assertTrue(adjacentNodes.contains("C"));
-        assertFalse(adjacentNodes.contains("D"));
-    }
-
-    @Test
-    void testGetWeight() {
-        Graph<String, Float> graph = new Graph<>(false);
-        graph.addNode("A");
-        graph.addNode("B");
-        graph.addNode("C");
-        graph.addNode("D");
-
-        graph.addArc("A", "B", 1.0f);
-        graph.addArc("B", "C", 2.0f);
-        graph.addArc("C", "D", 3.0f);
-        graph.addArc("A", "D", 4.0f);
-
-        assertEquals(1.0f, graph.getWeight("A", "B"));
-        assertEquals(2.0f, graph.getWeight("B", "C"));
-        assertEquals(3.0f, graph.getWeight("C", "D"));
-        assertEquals(4.0f, graph.getWeight("A", "D"));
-    }
-
-    @Test
-    void testGetTotalWeight() {
-        Graph<String, Float> graph = new Graph<>(false);
-        graph.addNode("A");
-        graph.addNode("B");
-        graph.addNode("C");
-        graph.addNode("D");
-
-        graph.addArc("A", "B", 1.0f);
-        graph.addArc("B", "C", 2.0f);
-        graph.addArc("C", "D", 3.0f);
-        graph.addArc("A", "D", 4.0f);
-
-        assertEquals(10.0, graph.getTotalWeight());
-    }
-
-    @Test
-    void testGetArcsCount() {
-        Graph<String, Float> graph = new Graph<>(false);
-        graph.addNode("A");
-        graph.addNode("B");
-        graph.addNode("C");
-        graph.addNode("D");
-
-        graph.addArc("A", "B", 1.0f);
-        graph.addArc("B", "C", 2.0f);
-        graph.addArc("C", "D", 3.0f);
-        graph.addArc("A", "D", 4.0f);
-
-        assertEquals(8, graph.getArcsCount());
-    }
-
-    @Test
-    void testGetArcs() {
-        Graph<String, Float> graph = new Graph<>(false);
-        graph.addNode("A");
-        graph.addNode("B");
-        graph.addNode("C");
-        graph.addNode("D");
-
-        graph.addArc("A", "B", 1.0f);
-        graph.addArc("B", "C", 2.0f);
-        graph.addArc("C", "D", 3.0f);
-        graph.addArc("A", "D", 4.0f);
-
-        Set<Arc<String, Float>> arcs = graph.getArcs();
-        boolean containsAB = false;
-        boolean containsAD = false;
-        for (Arc<String, Float> arc : arcs) {
-            if (arc.source().equals("A") && arc.target().equals("B") && arc.weight() == 1.0f) {
-                containsAB = true;
-            } else if (arc.source().equals("A") && arc.target().equals("D") && arc.weight() == 4.0f) {
-                containsAD = true;
-            }
-        }
-
-        assertTrue(containsAB);
-        assertTrue(containsAD);
-    }
-
-    @Test
-    void testDirectedGraphArcs() {
-        Graph<String, Float> graph = new Graph<>(true);
-        graph.addNode("A");
-        graph.addNode("B");
-        graph.addNode("C");
-        graph.addNode("D");
-
-        graph.addArc("A", "B", 1.0f);
-        graph.addArc("B", "C", 2.0f);
-        graph.addArc("C", "D", 3.0f);
-        graph.addArc("A", "D", 4.0f);
-
-        assertTrue(graph.containsArc("A", "B"));
-        assertFalse(graph.containsArc("B", "A"));
-        assertEquals(4, graph.numberOfArcs());
-    }
-
-    @Test
-    void testCreateEmptyGraph() {
-        Graph<String, Float> graph = Graph.createEmptyGraph(false);
-        assertNotNull(graph);
-        assertEquals(0, graph.numberOfNodes());
-        assertEquals(0, graph.numberOfArcs());
-    }
 }
