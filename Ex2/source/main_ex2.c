@@ -10,12 +10,11 @@ void to_lowercase(char *str) {
     }
 }
 
-void find_errors(const char *dictfile, const char *textfile, size_t max_height) {
+void find_errors(FILE *dict, FILE *text, size_t max_height) {
     struct SkipList *list;
     new_skiplist(&list, max_height, compare_strings);
 
     // Load dictionary file into the skip list
-    FILE *dict = fopen(dictfile, "r");
     if (!dict) {
         perror("Error opening dictionary file");
         return;
@@ -26,7 +25,9 @@ void find_errors(const char *dictfile, const char *textfile, size_t max_height) 
         strtok(word, "\n"); // Remove newline character
         to_lowercase(word); // Convert to lowercase
 
-        char *insert_word = strdup(word);
+        // dont use strdup
+        char *insert_word = malloc(strlen(word) + 1);
+        strcpy(insert_word, word);
         if (!insert_word) {
             printf("Memory allocation failed\n");
             exit(1);
@@ -37,7 +38,6 @@ void find_errors(const char *dictfile, const char *textfile, size_t max_height) 
     fclose(dict);
 
     // Process text file to find errors
-    FILE *text = fopen(textfile, "r");
     if (!text) {
         perror("Error opening text file");
         return;
@@ -70,7 +70,11 @@ int main(int argc, char *argv[]) {
     struct timespec start, end;
     clock_gettime(CLOCK_MONOTONIC, &start);
 
-    find_errors(argv[1], argv[2], height);
+    FILE *dictfile = fopen(argv[1], "r");
+    FILE *textfile = fopen(argv[2], "r");
+    find_errors(dictfile, textfile, height);
+    fclose(dictfile);
+    fclose(textfile);
 
     clock_gettime(CLOCK_MONOTONIC, &end);
     double elapsed_time = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;

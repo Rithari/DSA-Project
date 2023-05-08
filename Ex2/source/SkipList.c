@@ -4,14 +4,12 @@ void new_skiplist(struct SkipList **list, size_t max_height, int (*compar)(const
     *list = (struct SkipList *)malloc(sizeof(struct SkipList));
     (*list)->max_height = max_height;
     (*list)->compare = compar;
-    (*list)->head = (struct Node *)malloc(sizeof(struct Node));
-    (*list)->head->next = (struct Node **)calloc(max_height, sizeof(struct Node *));
-    (*list)->head->size = max_height;
+    (*list)->heads = (struct Node **)calloc(max_height, sizeof(struct Node *));
     (*list)->max_level = 1;
 }
 
 void clear_skiplist(struct SkipList **list) {
-    struct Node *current = (*list)->head;
+    struct Node *current = (*list)->heads[0];
     struct Node *temp;
 
     while (current) {
@@ -21,13 +19,15 @@ void clear_skiplist(struct SkipList **list) {
         current = temp;
     }
 
+    free((*list)->heads);
     free(*list);
     *list = NULL;
 }
 
+
 size_t random_level(size_t max_height) {
     size_t level = 1;
-    while ((random() / ((double)RAND_MAX + 1) < 0.5) && (level < max_height)) {
+    while ((rand() / ((double)RAND_MAX + 1) < 0.5) && (level < max_height)) {
         level++;
     }
     return level;
@@ -47,33 +47,29 @@ void insert_skiplist(struct SkipList *list, void *item) {
         list->max_level = new->size;
     }
 
-    struct Node *x = list->head;
+    struct Node **x = list->heads;
     for (int k = list->max_level; k >= 1; k--) {
-        if (x->next[k - 1] == NULL || list->compare(item, x->next[k - 1]->item) < 0) {
-            if (k <= new->size) {
-                new->next[k - 1] = x->next[k - 1];
-                x->next[k - 1] = new;
-            }
-        } else {
-            x = x->next[k - 1];
-            k++;
+        while (x[k - 1] != NULL && list->compare(x[k - 1]->item, item) < 0) {
+            x = x[k - 1]->next;
+        }
+        if (k <= new->size) {
+            new->next[k - 1] = x[k - 1];
+            x[k - 1] = new;
         }
     }
 }
 
 const void *search_skiplist(struct SkipList *list, void *item) {
-    struct Node *current = list->head;
+    struct Node **x = list->heads;
 
     for (int i = list->max_level; i >= 1; i--) {
-        while (current->next[i - 1] != NULL && list->compare(current->next[i - 1]->item, item) < 0) {
-            current = current->next[i - 1];
+        while (x[i - 1] != NULL && list->compare(x[i - 1]->item, item) < 0) {
+            x = x[i - 1]->next;
         }
     }
 
-    current = current->next[0];
-
-    if (current != NULL && list->compare(current->item, item) == 0) {
-        return current->item;
+    if (x[0] != NULL && list->compare(x[0]->item, item) == 0) {
+        return x[0]->item;
     } else {
         return NULL;
     }
