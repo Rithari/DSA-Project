@@ -1,16 +1,19 @@
 package datastructures;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Comparator;
 
 public class PriorityQueue<E> implements AbstractQueue<E> {
     private final Comparator<E> comparator;
     private final ArrayList<E> heap;
+    private final HashMap<E, Integer> indexMap;
 
     public PriorityQueue(Comparator<E> comparator) {
         this.comparator = comparator;
         this.heap = new ArrayList<>();
+        this.indexMap = new HashMap<>();
     }
 
     @Override
@@ -22,6 +25,7 @@ public class PriorityQueue<E> implements AbstractQueue<E> {
     public boolean push(E e) {
         heap.add(e);
         int index = heap.size() - 1;
+        indexMap.put(e, index);
         while (index > 0) {
             int parentIndex = (index - 1) / 2;
             if (comparator.compare(heap.get(parentIndex), heap.get(index)) <= 0) {
@@ -78,5 +82,34 @@ public class PriorityQueue<E> implements AbstractQueue<E> {
         E temp = heap.get(i);
         heap.set(i, heap.get(j));
         heap.set(j, temp);
+        indexMap.put(temp, j);
+        indexMap.put(heap.get(i), i);
+    }
+
+    public boolean contains(E e) {
+        return indexMap.containsKey(e);
+    }
+
+    public void increasePriority(E e1, E e2) {
+        Integer index = indexMap.get(e1);
+        if (index == null) {
+            throw new NoSuchElementException("Element not found in the PriorityQueue");
+        }
+        if (comparator.compare(e2, e1) >= 0) {
+            throw new IllegalArgumentException("New element must have a higher priority than the existing element");
+        }
+
+        heap.set(index, e2);
+        indexMap.put(e2, index);
+        indexMap.remove(e1);
+
+        while (index > 0) {
+            int parentIndex = (index - 1) / 2;
+            if (comparator.compare(heap.get(parentIndex), heap.get(index)) <= 0) {
+                break;
+            }
+            swap(heap, parentIndex, index);
+            index = parentIndex;
+        }
     }
 }
