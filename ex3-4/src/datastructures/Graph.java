@@ -1,151 +1,143 @@
 package datastructures;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+public class Graph<V, L> implements AbstractGraph<V, L> {
+    private final boolean directed;
+    private final boolean labelled;
+    private final Map<V, Map<V, L>> adjacencyMap;
+    private int numEdges;
 
-public class Graph<E, W> {
-
-    public record Arc<E, W>(E source, E target, W weight) {
-
-        @Override
-            public boolean equals(Object o) {
-                if (this == o) return true;
-                if (o == null || getClass() != o.getClass()) return false;
-                Arc<?, ?> arc = (Arc<?, ?>) o;
-                return source.equals(arc.source) &&
-                        target.equals(arc.target) &&
-                        weight.equals(arc.weight);
-            }
-
+    public Graph(boolean directed, boolean labelled) {
+        this.directed = directed;
+        this.labelled = labelled;
+        adjacencyMap = new HashMap<>();
+        numEdges = 0;
     }
 
-    private final boolean isDirected;
-    private final Map<E, Map<E, W>> adjacencyMap;
-
-    public Graph(boolean isDirected) {
-        this.isDirected = isDirected;
-        this.adjacencyMap = new HashMap<>();
-    }
-
-    // Create an empty graph - O(1)
-    public static <E, W> Graph<E, W> createEmptyGraph(boolean isDirected) {
-        return new Graph<>(isDirected);
-    }
-
-    // Add a node - O(1)
-    public void addNode(E node) {
-        adjacencyMap.putIfAbsent(node, new HashMap<>());
-    }
-
-    // Add an arc - O(1)
-    public void addArc(E source, E target, W weight) {
-        adjacencyMap.get(source).put(target, weight);
-        if (!isDirected) {
-            adjacencyMap.get(target).put(source, weight);
-        }
-    }
-
-    // Check if the graph is directed - O(1)
+    @Override
     public boolean isDirected() {
-        return isDirected;
+        return directed;
     }
 
-    // Verify whether the graph contains a given node - O(1)
-    public boolean containsNode(E node) {
+    @Override
+    public boolean isLabelled() {
+        return labelled;
+    }
+
+    @Override
+    public boolean addNode(V node) {
+        if (adjacencyMap.containsKey(node)) {
+            return false;
+        }
+        adjacencyMap.put(node, new HashMap<>());
+        return true;
+    }
+
+    @Override
+    public boolean addEdge(V a, V b, L label) {
+        if (!containsNode(a) || !containsNode(b)) {
+            return false;
+        }
+        if (label == null && isLabelled()) {
+            return false;
+        }
+        adjacencyMap.get(a).put(b, label);
+        if (!isDirected()) {
+            adjacencyMap.get(b).put(a, label);
+            numEdges += 2;
+        } else {
+            numEdges++;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean containsNode(V node) {
         return adjacencyMap.containsKey(node);
     }
 
-    // Verify whether the graph contains a given arc - O(1)
-    public boolean containsArc(E source, E target) {
-        return adjacencyMap.containsKey(source) && adjacencyMap.get(source).containsKey(target);
+    @Override
+    public boolean containsEdge(V a, V b) {
+        return adjacencyMap.get(a) != null && adjacencyMap.get(a).containsKey(b);
     }
 
-    // Delete a node - O(n)
-    public void deleteNode(E node) {
+    @Override
+    public boolean removeNode(V node) {
+        if (!containsNode(node)) {
+            return false;
+        }
+        int edgesRemoved = adjacencyMap.get(node).size();
         adjacencyMap.remove(node);
-        for (Map<E, W> adjacents : adjacencyMap.values()) {
-            adjacents.remove(node);
+        for (Map.Entry<V, Map<V, L>> entry : adjacencyMap.entrySet()) {
+            entry.getValue().remove(node);
         }
+        numEdges -= edgesRemoved;
+        if (!isDirected()) {
+            numEdges -= edgesRemoved;
+        }
+        return true;
     }
 
-    // Delete an arc - O(1)
-    public void deleteArc(E source, E target) {
-        if (adjacencyMap.containsKey(source)) {
-            adjacencyMap.get(source).remove(target);
-            if (!isDirected && adjacencyMap.containsKey(target)) {
-                adjacencyMap.get(target).remove(source);
-            }
+    @Override
+    public boolean removeEdge(V a, V b) {
+        if (!containsEdge(a, b)) {
+            return false;
         }
+        adjacencyMap.get(a).remove(b);
+        if (!isDirected()) {
+            adjacencyMap.get(b).remove(a);
+            numEdges -= 2;
+        } else {
+            numEdges--;
+        }
+        return true;
     }
 
-    // Determine the number of nodes - O(1)
-    public int numberOfNodes() {
+    @Override
+    public int numNodes() {
         return adjacencyMap.size();
     }
 
-    // Determine the number of arcs - O(n)
-    public int numberOfArcs() {
-        return adjacencyMap.values().stream().mapToInt(Map::size).sum() / (isDirected ? 1 : 2);
+    @Override
+    public int numEdges() {
+        return numEdges;
     }
 
-    // Retrieve the nodes of the graph - O(n)
-    public Set<E> getNodes() {
-        return adjacencyMap.keySet();
+    @Override
+    public AbstractCollection<V> getNodes() {
+        return new ArrayList<>(adjacencyMap.keySet());
     }
 
-    public int getArcsCount() {
-        return adjacencyMap.values().stream().mapToInt(Map::size).sum();
-    }
-
-    // Retrieve all arcs of the graph - O(n^2)
-    public Set<Arc<E, W>> getArcs() {
-        Set<Arc<E, W>> arcs = new HashSet<>();
-        for (E source : adjacencyMap.keySet()) {
-            for (Map.Entry<E, W> entry : adjacencyMap.get(source).entrySet()) {
-                E target = entry.getKey();
-                W weight = entry.getValue();
-                if (!isDirected) {
-                    if (source.hashCode() <= target.hashCode()) {
-                        arcs.add(new Arc<>(source, target, weight));
-                    }
-                } else {
-                    arcs.add(new Arc<>(source, target, weight));
-                }
+    @Override
+    public AbstractCollection<AbstractEdge<V, L>> getEdges() {
+        AbstractCollection<AbstractEdge<V, L>> edges = new ArrayList<>();
+        for (V source : adjacencyMap.keySet()) {
+            for (Map.Entry<V, L> entry : adjacencyMap.get(source).entrySet()) {
+                V target = entry.getKey();
+                L label = entry.getValue();
+                edges.add(new Edge<>(source, target, label));
             }
         }
-        return arcs;
+        return edges;
     }
 
-    // Retrieve adjacent nodes of a given node - O(1)
-    public Set<E> getAdjacentNodes(E node) {
-        return adjacencyMap.get(node).keySet();
-    }
 
-    // Retrieve the weight associated with a pair of nodes - O(1)
-    public W getWeight(E source, E target) {
-        return adjacencyMap.get(source).get(target);
-    }
-
-    // Determine the weight of the graph - O(n)
-    public double getTotalWeight() {
-        if (!isWeighted()) {
-            throw new UnsupportedOperationException("Graph is not weighted.");
+    @Override
+    public AbstractCollection<V> getNeighbours(V node) {
+        if (!containsNode(node)) {
+            return null;
         }
-        return adjacencyMap.values().stream()
-                .flatMap(adjacents -> adjacents.values().stream())
-                .mapToDouble(weight -> ((Number) weight).doubleValue())
-                .sum() / (isDirected ? 1 : 2);
+        return new ArrayList<>(adjacencyMap.get(node).keySet());
     }
 
-    private boolean isWeighted() {
-        // Assuming the graph is weighted if the weight is of type Number
-        return adjacencyMap.values().stream()
-                .flatMap(adjacents -> adjacents.values().stream())
-                .findFirst()
-                .filter(Number.class::isInstance)
-                .isPresent();
+    @Override
+    public L getLabel(V a, V b) {
+        if (!containsEdge(a, b)) {
+            return null;
+        }
+        return adjacencyMap.get(a).get(b);
     }
+
+    private record Edge<V, L>(V start, V end, L label) implements AbstractEdge<V, L> { }
 }
