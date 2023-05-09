@@ -103,7 +103,7 @@ public class Graph<V, L> implements AbstractGraph<V, L> {
 
     @Override
     public int numEdges() {
-        return numEdges;
+        return isDirected() ? numEdges : numEdges / 2;
     }
 
     @Override

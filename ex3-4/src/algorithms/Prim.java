@@ -15,10 +15,10 @@ public class Prim {
     public static void main(String[] args) {
         Graph<String, Double> graph = readCSV(args[0]);
 
-        Graph<String, Double> minCoveringForest = primsAlgorithm(graph);
+        Graph<String, Double> minCoveringForest = prim(graph);
 
         System.out.println("Number of nodes: " + minCoveringForest.numNodes());
-        System.out.println("Number of edges: " + minCoveringForest.numEdges() / 2);
+        System.out.println("Number of edges: " + minCoveringForest.numEdges());
         System.out.printf("Total km: %.3f\n", calculateTotalWeight(minCoveringForest) / 1000);
     }
 
@@ -42,7 +42,7 @@ public class Prim {
         return graph;
     }
 
-    private static Graph<String, Double> primsAlgorithm(Graph<String, Double> graph) {
+    public static Graph<String, Double> prim(Graph<String, Double> graph) {
         Graph<String, Double> minCoveringForest = new Graph<>(false, true);
 
         Set<String> visited = new HashSet<>();
@@ -106,7 +106,6 @@ public class Prim {
         for (AbstractGraph.AbstractEdge<String, Double> edge : graph.getEdges()) {
             totalWeight += edge.getLabel();
         }
-        // Since the graph is undirected, each edge is counted twice, so we need to divide by 2
         return totalWeight / 2;
     }
 }
