@@ -1,6 +1,8 @@
 package test.datastructures;
 
 import datastructures.PriorityQueue;
+
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.Comparator;
@@ -116,5 +118,25 @@ class PriorityQueueTest {
         priorityQueue.push(8);
 
         assertThrows(IllegalArgumentException.class, () -> priorityQueue.increasePriority(5, 6));
+    }
+
+    @Test
+    void testRemove() {
+        priorityQueue.push(5);
+        priorityQueue.push(2);
+        priorityQueue.push(8);
+        priorityQueue.push(1);
+        priorityQueue.push(4);
+
+        assertTrue(priorityQueue.remove(8));
+        assertEquals(1, priorityQueue.top());
+        priorityQueue.pop();
+        assertEquals(2, priorityQueue.top());
+        priorityQueue.pop();
+        assertEquals(4, priorityQueue.top());
+        priorityQueue.pop();
+        assertEquals(5, priorityQueue.top());
+
+        assertFalse(priorityQueue.remove(8));
     }
 }
