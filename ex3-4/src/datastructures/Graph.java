@@ -37,9 +37,11 @@ public class Graph<V, L> implements AbstractGraph<V, L> {
     @Override
     public boolean addEdge(V a, V b, L label) {
         if (!containsNode(a) || !containsNode(b)) {
+            System.out.println("One of the nodes is not in the graph");
             return false;
         }
         if (label == null && isLabelled()) {
+            System.out.println("Label is null");
             return false;
         }
         adjacencyMap.get(a).put(b, label);
@@ -122,7 +124,6 @@ public class Graph<V, L> implements AbstractGraph<V, L> {
         return edges;
     }
 
-
     @Override
     public AbstractCollection<V> getNeighbours(V node) {
         if (!containsNode(node)) {
@@ -139,5 +140,30 @@ public class Graph<V, L> implements AbstractGraph<V, L> {
         return adjacencyMap.get(a).get(b);
     }
 
-    private record Edge<V, L>(V start, V end, L label) implements AbstractEdge<V, L> { }
+    private class Edge<V, L> implements AbstractEdge<V, L> {
+        private final V start;
+        private final V end;
+        private final L label;
+
+        public Edge(V start, V end, L label) {
+            this.start = start;
+            this.end = end;
+            this.label = label;
+        }
+
+        @Override
+        public V getStart() {
+            return start;
+        }
+
+        @Override
+        public V getEnd() {
+            return end;
+        }
+
+        @Override
+        public L getLabel() {
+            return label;
+        }
+    }
 }

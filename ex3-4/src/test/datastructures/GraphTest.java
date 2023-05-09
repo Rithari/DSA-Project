@@ -1,6 +1,7 @@
 package test.datastructures;
 
-import datastructures.AbstractEdge;
+
+import datastructures.AbstractGraph;
 import datastructures.Graph;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +32,8 @@ class GraphTest {
     @Test
     void testAddNode() {
         Graph<String, Float> graph = new Graph<>(false, false);
-        graph.addNode("A");
+        assertTrue(graph.addNode("A"));
+        assertFalse(graph.addNode("A"));
 
         assertTrue(graph.containsNode("A"));
     }
@@ -41,7 +43,7 @@ class GraphTest {
         Graph<String, Float> graph = new Graph<>(false, true);
         graph.addNode("A");
         graph.addNode("B");
-        graph.addEdge("A", "B", 1.0f);
+        assertTrue(graph.addEdge("A", "B", 1.0f));
 
         assertTrue(graph.containsEdge("A", "B"));
         assertEquals(1.0f, graph.getLabel("A", "B"));
@@ -53,7 +55,9 @@ class GraphTest {
         graph.addNode("A");
         graph.addNode("B");
         graph.addNode("C");
-        graph.removeNode("B");
+
+        assertTrue(graph.removeNode("B"));
+        assertFalse(graph.removeNode("B"));
 
         assertFalse(graph.containsNode("B"));
     }
@@ -64,7 +68,9 @@ class GraphTest {
         graph.addNode("A");
         graph.addNode("B");
         graph.addEdge("A", "B", 1.0f);
-        graph.removeEdge("A", "B");
+
+        assertTrue(graph.removeEdge("A", "B"));
+        assertFalse(graph.removeEdge("A", "B"));
 
         assertFalse(graph.containsEdge("A", "B"));
     }
@@ -114,14 +120,14 @@ class GraphTest {
         graph.addEdge("A", "B", 1.0f);
         graph.addEdge("B", "C", 2.0f);
 
-        Collection<AbstractEdge<String, Float>> edges = graph.getEdges();
+        Collection<AbstractGraph.AbstractEdge<String, Float>> edges = graph.getEdges();
         assertEquals(2, edges.size());
 
         int count = 0;
-        for (AbstractEdge<String, Float> edge : edges) {
-            if (edge.start().equals("A") && edge.end().equals("B") && edge.label().equals(1.0f)) {
+        for (AbstractGraph.AbstractEdge<String, Float> edge : edges) {
+            if (edge.getStart().equals("A") && edge.getEnd().equals("B") && edge.getLabel().equals(1.0f)) {
                 count++;
-            } else if (edge.start().equals("B") && edge.end().equals("C") && edge.label().equals(2.0f)) {
+            } else if (edge.getStart().equals("B") && edge.getEnd().equals("C") && edge.getLabel().equals(2.0f)) {
                 count++;
             }
         }

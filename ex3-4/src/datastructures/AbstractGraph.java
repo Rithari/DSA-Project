@@ -17,5 +17,11 @@ public interface AbstractGraph<V,L> {
     AbstractCollection<AbstractEdge<V,L>> getEdges(); // recupero degli archi del grafo -- O(N)
     AbstractCollection<V> getNeighbours(V a); // recupero dei nodi adiacenti ad un dato nodo -- O(1) (*)
     L getLabel(V a, V b); // recupero dell'etichetta di un arco -- O(1) (*)
-};
+
+    interface AbstractEdge<V, L> {
+        V getStart();
+        V getEnd();
+        L getLabel();
+    }
+}
 
