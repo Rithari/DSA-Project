@@ -1,9 +1,6 @@
 package datastructures;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.NoSuchElementException;
-import java.util.Comparator;
+import java.util.*;
 
 public class PriorityQueue<E> implements AbstractQueue<E> {
     private final Comparator<E> comparator;
@@ -26,6 +23,7 @@ public class PriorityQueue<E> implements AbstractQueue<E> {
             index = parentIndex;
         }
     }
+
     private void heapifyDown(int index) {
         int leftChildIndex = index * 2 + 1;
         int rightChildIndex = index * 2 + 2;
@@ -141,5 +139,11 @@ public class PriorityQueue<E> implements AbstractQueue<E> {
         indexMap.remove(e1);
 
         heapifyUp(index);
+    }
+
+    public void addAll(Collection<E> edgesWithStartNode) {
+        for (E e : edgesWithStartNode) {
+            push(e);
+        }
     }
 }
