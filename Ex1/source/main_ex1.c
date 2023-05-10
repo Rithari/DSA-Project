@@ -32,7 +32,7 @@ int compare_field3(const void *a, const void *b) {
 }
 
 // Reads a CSV file, sorts the records based on the specified field, and writes the sorted records to a new CSV file
-void sort_records(const char *infile, const char *outfile, size_t k, size_t field) {
+void sort_records(FILE *infile, FILE *outfile, size_t k, size_t field) {
     int num_rows;
     struct Row *rows = read_csv(infile, &num_rows);
     if (rows == NULL) {
@@ -75,7 +75,7 @@ void sort_records(const char *infile, const char *outfile, size_t k, size_t fiel
         perror("Failed to write CSV file");
         exit(1);
     }
-    printf("Sorted CSV file saved to '%s'\n", outfile);
+    printf("Sorted CSV file saved\n");
 
     // Free the memory allocated for the rows array
     for (int i = 0; i < num_rows; i++) {
@@ -91,19 +91,35 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    char *infile = argv[1];
-    char *outfile = argv[2];
+    char *infile_path = argv[1];
+    char *outfile_path = argv[2];
     size_t k = strtol(argv[3], NULL, 10);
     size_t field = strtol(argv[4], NULL, 10);
 
     // Check if input and output files are the same
-    if (strcmp(infile, outfile) == 0) {
+    if (strcmp(infile_path, outfile_path) == 0) {
         printf("Input and output files must be different.\n");
+        return 1;
+    }
+
+    FILE *infile = fopen(infile_path, "r");
+    if (infile == NULL) {
+        perror("Failed to open input file");
+        return 1;
+    }
+
+    FILE *outfile = fopen(outfile_path, "w");
+    if (outfile == NULL) {
+        perror("Failed to open output file");
+        fclose(infile);
         return 1;
     }
 
     // Sort the records in the input file and save them to the output file
     sort_records(infile, outfile, k, field);
+
+    fclose(infile);
+    fclose(outfile);
 
     return 0;
 }

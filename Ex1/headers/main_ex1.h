@@ -14,6 +14,6 @@ int compare_field2(const void *a, const void *b);
 int compare_field3(const void *a, const void *b);
 
 // Sort the records in the input CSV file and save the sorted records to an output CSV file
-void sort_records(const char *infile, const char *outfile, size_t k, size_t field);
+void sort_records(FILE *infile, FILE *outfile, size_t k, size_t field);
 
 #endif //EX1_MAIN_EX1_H

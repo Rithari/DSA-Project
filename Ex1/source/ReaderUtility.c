@@ -37,8 +37,7 @@ bool is_number(const char *str) {
 }
 
 // Reads the CSV file and returns an array of Row structs
-struct Row *read_csv(const char *filename, int *num_rows) {
-    FILE *fp;
+struct Row *read_csv(FILE *fp, int *num_rows) {
     char *line = NULL;
     size_t len = 0;
     ssize_t read_bytes;
@@ -50,7 +49,6 @@ struct Row *read_csv(const char *filename, int *num_rows) {
         return NULL;
     }
 
-    fp = fopen(filename, "r");
     if (fp == NULL) {
         perror("Error opening file");
         free(rows);
@@ -148,17 +146,12 @@ struct Row *read_csv(const char *filename, int *num_rows) {
     *num_rows = num_read;
     return rows;
 }
-
 // Writes the given array of Row structs to a CSV file
-int write_csv(const char *filename, const struct Row *rows, int num_rows) {
-    FILE *fp;
-
-    fp = fopen(filename, "w");
+int write_csv(FILE *fp, const struct Row *rows, int num_rows) {
     if (fp == NULL) {
         perror("Error opening file for writing");
         return 1;
     }
-
     // Iterate through the rows and write each row to the file
     for (int i = 0; i < num_rows; i++) {
         fprintf(fp, "%d,%s,%d,%5lf\n",
