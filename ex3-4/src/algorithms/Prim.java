@@ -2,7 +2,7 @@ package algorithms;
 
 import datastructures.Graph;
 import datastructures.AbstractGraph;
-import datastructures.AbstractGraph.AbstractEdge;
+import datastructures.NodeKey;
 import datastructures.PriorityQueue;
 
 import java.io.BufferedReader;
@@ -15,12 +15,20 @@ public class Prim {
     public static void main(String[] args) {
         Graph<String, Double> graph = readCSV(args[0]);
 
-        Graph<String, Double> minCoveringForest = prim(graph);
+        // Get the first node as the root
+        String root = graph.getNodes().iterator().next();
+
+        long startTime = System.nanoTime();
+        Graph<String, Double> minCoveringForest = primMST(graph, root);
+        long endTime = System.nanoTime();
+
+        System.out.println("Time taken: " + ((endTime - startTime) / 10E5) + " ms");
 
         System.out.println("Number of nodes: " + minCoveringForest.numNodes());
         System.out.println("Number of edges: " + minCoveringForest.numEdges());
         System.out.printf("Total km: %.3f\n", calculateTotalWeight(minCoveringForest) / 1000);
     }
+
 
     private static Graph<String, Double> readCSV(String path) {
         Graph<String, Double> graph = new Graph<>(false, true);
@@ -41,65 +49,55 @@ public class Prim {
         }
         return graph;
     }
+    public static Graph<String, Double> primMST(Graph<String, Double> graph, String root) {
+        if (graph == null || graph.numNodes() == 0) {
+            throw new IllegalArgumentException("The input graph is empty.");
+        }
 
-    public static Graph<String, Double> prim(Graph<String, Double> graph) {
-        Graph<String, Double> minCoveringForest = new Graph<>(false, true);
-
+        Graph<String, Double> mst = new Graph<>(false, true);
         Set<String> visited = new HashSet<>();
-        PriorityQueue<AbstractEdge<String, Double>> priorityQueue = new PriorityQueue<>(Comparator.comparing(AbstractEdge::getLabel));
+        Map<String, NodeKey> nodeKeys = new HashMap<>();
 
-        for (String startNode : graph.getNodes()) {
-            if (!visited.contains(startNode)) {
-                visited.add(startNode);
-                minCoveringForest.addNode(startNode);
+        for (String node : graph.getNodes()) {
+            nodeKeys.put(node, new NodeKey(node, Double.POSITIVE_INFINITY));
+        }
 
-                priorityQueue.addAll(getEdgesWithStartNode(graph, startNode, visited));
+        Comparator<NodeKey> nodeKeyComparator = Comparator.comparingDouble(NodeKey::getKey);
+        PriorityQueue<NodeKey> priorityQueue = new PriorityQueue<>(nodeKeyComparator);
+        nodeKeys.get(root).setKey(0);
+        priorityQueue.addAll(nodeKeys.values());
 
-                while (!priorityQueue.empty()) {
-                    AbstractEdge<String, Double> edge = priorityQueue.top();
-                    priorityQueue.pop();
+        while (!priorityQueue.empty()) {
+            NodeKey currentNodeKey = priorityQueue.top();
+            priorityQueue.pop();
 
-                    String endNode = edge.getEnd();
-                    if (!visited.contains(endNode)) {
-                        visited.add(endNode);
-                        minCoveringForest.addNode(endNode);
-                        minCoveringForest.addEdge(edge.getStart(), endNode, edge.getLabel());
+            String currentNode = currentNodeKey.getNode();
+            visited.add(currentNode);
 
-                        priorityQueue.addAll(getEdgesWithStartNode(graph, endNode, visited));
+            mst.addNode(currentNode);
+
+            if (currentNodeKey.getParent() != null) {
+                mst.addNode(currentNodeKey.getParent());
+                double edgeWeight = graph.getLabel(currentNode, currentNodeKey.getParent());
+                mst.addEdge(currentNode, currentNodeKey.getParent(), edgeWeight);
+            }
+
+            for (String neighbor : graph.getNeighbours(currentNode)) {
+                if (!visited.contains(neighbor)) {
+                    double newKey = graph.getLabel(currentNode, neighbor);
+
+                    if (newKey < nodeKeys.get(neighbor).getKey()) {
+                        NodeKey newNeighborKey = new NodeKey(neighbor, newKey);
+                        newNeighborKey.setParent(currentNode);
+                        priorityQueue.increasePriority(nodeKeys.get(neighbor), newNeighborKey);
+                        nodeKeys.put(neighbor, newNeighborKey);
                     }
                 }
             }
         }
 
-        return minCoveringForest;
+        return mst;
     }
-
-    private static Collection<AbstractEdge<String, Double>> getEdgesWithStartNode(Graph<String, Double> graph, String startNode, Set<String> visited) {
-        Collection<AbstractEdge<String, Double>> edges = new ArrayList<>();
-        for (String neighbour : graph.getNeighbours(startNode)) {
-            if (!visited.contains(neighbour)) {
-                AbstractEdge<String, Double> edge = new AbstractEdge<>() {
-                    @Override
-                    public String getStart() {
-                        return startNode;
-                    }
-
-                    @Override
-                    public String getEnd() {
-                        return neighbour;
-                    }
-
-                    @Override
-                    public Double getLabel() {
-                        return graph.getLabel(startNode, neighbour);
-                    }
-                };
-                edges.add(edge);
-            }
-        }
-        return edges;
-    }
-
 
     private static double calculateTotalWeight(Graph<String, Double> graph) {
         double totalWeight = 0;

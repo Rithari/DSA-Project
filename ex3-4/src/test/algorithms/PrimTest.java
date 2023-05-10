@@ -45,14 +45,14 @@ class PrimTest {
         Graph<String, Double> singleNodeGraph = new Graph<>(false, true);
         singleNodeGraph.addNode("A");
 
-        Graph<String, Double> mst = Prim.prim(singleNodeGraph);
+        Graph<String, Double> mst = Prim.primMST(singleNodeGraph, "A");
         assertEquals(1, mst.numNodes());
         assertEquals(0, mst.numEdges());
     }
 
     @Test
     void testPrimComplexGraph() {
-        Graph<String, Double> mst = Prim.prim(graph);
+        Graph<String, Double> mst = Prim.primMST(graph, "A");
 
         assertEquals(7, mst.numNodes());
         assertEquals(6, mst.numEdges());
@@ -66,24 +66,19 @@ class PrimTest {
 
     @Test
     void testPrimEmptyGraph() {
-        Graph<String, Double> graph = new Graph<>(false, true);
+        Graph<String, Double> emptyGraph = new Graph<>(false, true);
 
-        Graph<String, Double> mst = Prim.prim(graph);
-
-        assertEquals(0, mst.numNodes());
-        assertEquals(0, mst.numEdges());
+        assertThrows(IllegalArgumentException.class, () -> Prim.primMST(emptyGraph, "A"));
     }
-
 
     @Test
     void testPrimSingleNodeGraph() {
-        Graph<String, Double> graph = new Graph<>(false, true);
-        graph.addNode("A");
+        Graph<String, Double> singleNodeGraph = new Graph<>(false, true);
+        singleNodeGraph.addNode("A");
 
-        Graph<String, Double> mst = Prim.prim(graph);
+        Graph<String, Double> mst = Prim.primMST(singleNodeGraph, "A");
 
         assertEquals(1, mst.numNodes());
         assertEquals(0, mst.numEdges());
     }
-
 }
