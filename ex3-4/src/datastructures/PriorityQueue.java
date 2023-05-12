@@ -53,6 +53,9 @@ public class PriorityQueue<E> implements AbstractQueue<E> {
 
     @Override
     public boolean push(E e) {
+        if (indexMap.containsKey(e)) {
+            return false;
+        }
         heap.add(e);
         int index = heap.size() - 1;
         indexMap.put(e, index);
